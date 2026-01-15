@@ -164,7 +164,7 @@ This is required because Trello expects **label IDs**, not label names.
 **Node:** Create a card
 
 Creates a card in a specific Trello list:
-- **listId:** `6966f2efe8c00f1fafcca5e2`
+- **listId:** <listId>
 
 **Card details:**
 - **Card name:** value from **Task**
