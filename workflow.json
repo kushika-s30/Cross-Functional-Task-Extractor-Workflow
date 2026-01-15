@@ -1,0 +1,298 @@
+{
+  "name": "Extract tasks from Meetings and add it to Trello",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -96
+      ],
+      "id": "14dd9241-14fd-4f64-9d82-b47de1844df3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ORI0huHb5mNMU7LsOiFaAKKVa-sHKeZg3xLO5gH6EFA",
+          "mode": "list",
+          "cachedResultName": "Tasks List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORI0huHb5mNMU7LsOiFaAKKVa-sHKeZg3xLO5gH6EFA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORI0huHb5mNMU7LsOiFaAKKVa-sHKeZg3xLO5gH6EFA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        -80
+      ],
+      "id": "2c718729-c9c6-4889-b8dd-fe1c1a4481c5",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Bjv3qqsgY8CdCBfK",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3e560509-9398-4216-ac01-bbc1800ce86e",
+              "leftValue": "={{ $json['Sent to trello'] }}",
+              "rightValue": "The group",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -80
+      ],
+      "id": "6460a790-8d03-4802-bdda-951883cc8440",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "listId": "6966f2efe8c00f1fafcca5e2",
+        "name": "={{ $json.Task }}",
+        "additionalFields": {
+          "idLabels": "={{ $json.Category }}"
+        }
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -80
+      ],
+      "id": "640073b4-6299-4d1c-92b5-7d2dec24db7d",
+      "name": "Create a card",
+      "credentials": {
+        "trelloApi": {
+          "id": "jqaNJYraU2iuDv6F",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  switch (item?.json?.Category) {\n    case \"Biz Dev\":\n      item.json.Category = \"6966f61e68e5fc1c64fae6c1\";\n      break;\n    case \"Investor Relations\":\n      item.json.Category = \"6966f65393a8d4b1003807b1\";\n      break;\n    case \"Product\":\n      item.json.Category = \"6966f8256adb5db949daef3c\";\n      break;\n    case \"Tech Dev\":\n      item.json.Category = \"6966f878c055c9fc084c709b\";\n      break;\n    case \"Ops\":\n      item.json.Category = \"6966f94b79c3f7597fe24e32\";\n      break;\n  }\n  return item;\n});\nreturn updatedItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -144
+      ],
+      "id": "f8bead51-fc3d-4b89-9d20-f219f247f0fc",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ORI0huHb5mNMU7LsOiFaAKKVa-sHKeZg3xLO5gH6EFA",
+          "mode": "list",
+          "cachedResultName": "Tasks List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORI0huHb5mNMU7LsOiFaAKKVa-sHKeZg3xLO5gH6EFA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORI0huHb5mNMU7LsOiFaAKKVa-sHKeZg3xLO5gH6EFA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Sent to trello": "Yes"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Task",
+              "displayName": "Task",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Assignee",
+              "displayName": "Assignee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date Created",
+              "displayName": "Date Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Sent to trello",
+              "displayName": "Sent to trello",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        864,
+        -96
+      ],
+      "id": "696f9c90-9d58-416a-89f7-0694308d7883",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Bjv3qqsgY8CdCBfK",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a card": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "758968a2-50c1-45ae-b390-89118379fbc2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9df7d8671094fc1c7945bd5fa9a40dd0977eff3bf8dc72fffa44d794760db249"
+  },
+  "id": "f0PwT7Rg5Khl7jt4",
+  "tags": []
+}
