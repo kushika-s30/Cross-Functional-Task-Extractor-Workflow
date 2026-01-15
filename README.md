@@ -1,4 +1,4 @@
-# MeetingOps
+# Automatic Task Extraction from Meetings
 
 # Overview
 
@@ -44,7 +44,7 @@ Notes are saved as a Google Doc in a designated *Meeting Notes* Drive folder.
 
 A scheduled Apps Script:
 
-- Finds the latest **“Biz Dev <>”** Google Doc created in the last 24 hours  
+- Finds the latest Meeting Notes Google Doc created in the last 24 hours  
 - Extracts tasks from the **Suggested Next Steps** section  
 - Identifies the assignee using natural language rules  
 - Appends structured rows into a Google Sheet  
