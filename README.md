@@ -1,4 +1,4 @@
-# Cross-Functional-Task-Extractor-Workflow
+# MeetingOps
 
 # Overview
 
@@ -61,7 +61,9 @@ A scheduled Apps Script:
 
 Tasks older than **1 month** are automatically removed from the sheet to keep it lightweight and scalable.
 
----
+Workflow Diagram: 
+
+<img width="2554" height="1332" alt="image" src="https://github.com/user-attachments/assets/24067efa-df31-4ac8-a728-accdf072f1d2" />
 
 ## 🗂️ Google Sheet Schema
 
@@ -75,7 +77,7 @@ The Google Sheet acts as the single source of truth.
 | Date Created      | Meeting doc creation date                    |
 | Sent to Trello    | Flag to avoid duplicate Trello cards          |
 
----
+
 
 ## ⚙️ Google Apps Script Details
 
@@ -86,7 +88,7 @@ Extract structured action items from AI-generated meeting notes and persist them
 
 #### Locate the Latest Meeting Doc
 - Searches a specific Google Drive folder  
-- Filters Google Docs named `Biz Dev <>*`  
+- Filters Google Docs with the Meeting Notes file name  
 - Only considers files created in the last 24 hours  
 
 #### Parse the Document
@@ -99,9 +101,84 @@ Extract structured action items from AI-generated meeting notes and persist them
 #### Extract Assignees
 Uses a simple NLP heuristic:
 
+#### Append to Google Sheet
+- Each task becomes a new row  
+- Automatically timestamps tasks  
+- Initializes **Sent to Trello** as blank
 
+#### n8n Workflow
 
+## 1. Manual Trigger
 
-Workflow Diagram: 
+**Node:** When clicking **Execute workflow**
 
-<img width="2554" height="1332" alt="image" src="https://github.com/user-attachments/assets/24067efa-df31-4ac8-a728-accdf072f1d2" />
+The workflow only runs when you manually click **Execute workflow** in n8n.
+
+---
+
+## 2. Read Tasks from Google Sheets
+
+**Node:** Get row(s) in sheet
+
+Reads all rows from a Google Sheet called **“Tasks List”** (`Sheet1`).
+
+Each row represents a task with fields such as:
+- **Task**
+- **Category**
+- **Sent to trello**
+- **row_number**
+
+---
+
+## 3. Filter Tasks Not Yet Sent to Trello
+
+**Node:** If
+
+Checks the following condition:
+- **“Sent to trello” is empty**
+
+Only rows that haven’t been sent to Trello continue in the workflow.  
+Rows already marked as sent are ignored.
+
+---
+
+## 4. Convert Category Names to Trello Label IDs
+
+**Node:** Code (JavaScript)
+
+Takes the task’s **Category** (text) and converts it into a Trello **label ID**.
+
+**Mapping example:**
+- `"Biz Dev"` → `6966f61e68e5fc1c64fae6c1`
+- `"Investor Relations"` → `6966f65393a8d4b1003807b1`
+- `"Product"` → `6966f8256adb5db949daef3c`
+- `"Tech Dev"` → `6966f878c055c9fc084c709b`
+- `"Ops"` → `6966f94b79c3f7597fe24e32`
+
+This is required because Trello expects **label IDs**, not label names.
+
+---
+
+## 5. Create a Trello Card
+
+**Node:** Create a card
+
+Creates a card in a specific Trello list:
+- **listId:** `6966f2efe8c00f1fafcca5e2`
+
+**Card details:**
+- **Card name:** value from **Task**
+- **Label:** mapped **Category** label ID
+
+---
+
+## 6. Mark Task as Sent in Google Sheets
+
+**Node:** Update row in sheet
+
+Updates the same row in Google Sheets:
+- Sets **“Sent to trello” = "Yes"**
+- Uses **row_number** to ensure the correct row is updated
+
+This prevents the same task from being added to Trello again in future runs.
+
