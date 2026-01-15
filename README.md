@@ -18,11 +18,7 @@ It eliminates manual note-taking, task copy-pasting, and follow-ups by:
 
 ### Tools Involved
 
-- Google Meet  
-- Google Gemini  
-- Google Docs  
-- Google Apps Script  
-- Google Sheets  
+- Google Workspace 
 - n8n  
 - Trello  
 
